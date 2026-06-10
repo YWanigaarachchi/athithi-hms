@@ -3,7 +3,6 @@
     "development"
   ],
   "hints": {
-<<<<<<< HEAD
     "compat-api/html": [
       "default",
       {
@@ -12,18 +11,12 @@
         ]
       }
     ],
-=======
->>>>>>> 3e85ba5d2dde841ed69244251a3b7d73aa2d3f04
     "compat-api/css": [
       "default",
       {
         "ignore": [
-<<<<<<< HEAD
           "backdrop-filter",
           "-webkit-text-size-adjust"
-=======
-          "backdrop-filter"
->>>>>>> 3e85ba5d2dde841ed69244251a3b7d73aa2d3f04
         ]
       }
     ]
