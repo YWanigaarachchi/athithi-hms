@@ -7,9 +7,9 @@ import Layout from './components/Layout/Layout';
 import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import RoomsPage from './pages/rooms/RoomsPage';
-// import BookingsPage from './pages/bookings/BookingsPage';
-// import GuestsPage from './pages/guests/GuestsPage';
-// import BillingPage from './pages/billing/BillingPage';
+import BookingsPage from './pages/bookings/BookingsPage';
+import GuestsPage from './pages/guests/GuestsPage';
+import BillingPage from './pages/billing/BillingPage';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -34,11 +34,9 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/rooms" element={<ProtectedRoute><RoomsPage /></ProtectedRoute>} />
-      {/* 
       <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
       <Route path="/guests" element={<ProtectedRoute><GuestsPage /></ProtectedRoute>} />
       <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
-      */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
