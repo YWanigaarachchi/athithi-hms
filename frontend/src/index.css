@@ -1338,3 +1338,4 @@ tbody tr:hover { background: var(--bg-elevated); }
 .mb-6 { margin-bottom: var(--space-6); }
 .divider { border: none; border-top: 1px solid var(--border); margin: var(--space-5) 0; }
 .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
