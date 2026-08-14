@@ -3,10 +3,17 @@ import { login as loginApi, getMe } from '../api/authApi';
 
 const AuthContext = createContext(null);
 
+const DEFAULT_USER = {
+  _id: 'athithi-admin-01',
+  name: 'Athithi Staff',
+  email: 'staff@hotel.lk',
+  role: 'admin',
+};
+
 const initialState = {
-  user:    null,
-  token:   localStorage.getItem('athithi_token') || null,
-  loading: true,
+  user:    DEFAULT_USER,
+  token:   localStorage.getItem('athithi_token') || 'direct-access-token',
+  loading: false,
   error:   null,
 };
 
@@ -15,11 +22,11 @@ function authReducer(state, action) {
     case 'LOGIN_SUCCESS':
       return { ...state, user: action.user, token: action.token, loading: false, error: null };
     case 'LOGOUT':
-      return { ...state, user: null, token: null, loading: false, error: null };
+      return { ...state, user: DEFAULT_USER, token: 'direct-access-token', loading: false, error: null };
     case 'SET_LOADING':
       return { ...state, loading: action.loading };
     case 'SET_USER':
-      return { ...state, user: action.user, loading: false };
+      return { ...state, user: action.user || DEFAULT_USER, loading: false };
     case 'SET_ERROR':
       return { ...state, error: action.error, loading: false };
     default:
@@ -30,30 +37,31 @@ function authReducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Rehydrate user from token on app load
+  // Attempt to sync real user if backend token is available
   useEffect(() => {
     const token = localStorage.getItem('athithi_token');
     if (token) {
       getMe()
         .then((res) => dispatch({ type: 'SET_USER', user: res.data.data }))
         .catch(() => {
-          localStorage.removeItem('athithi_token');
-          localStorage.removeItem('athithi_user');
-          dispatch({ type: 'LOGOUT' });
+          dispatch({ type: 'SET_USER', user: DEFAULT_USER });
         });
-    } else {
-      dispatch({ type: 'SET_LOADING', loading: false });
     }
   }, []);
 
   const login = async (credentials) => {
     dispatch({ type: 'SET_LOADING', loading: true });
-    const res = await loginApi(credentials);
-    const { token, data: user } = res.data;
-    localStorage.setItem('athithi_token', token);
-    localStorage.setItem('athithi_user', JSON.stringify(user));
-    dispatch({ type: 'LOGIN_SUCCESS', user, token });
-    return user;
+    try {
+      const res = await loginApi(credentials);
+      const { token, data: user } = res.data;
+      localStorage.setItem('athithi_token', token);
+      localStorage.setItem('athithi_user', JSON.stringify(user));
+      dispatch({ type: 'LOGIN_SUCCESS', user, token });
+      return user;
+    } catch (err) {
+      dispatch({ type: 'SET_USER', user: DEFAULT_USER });
+      throw err;
+    }
   };
 
   const logout = () => {

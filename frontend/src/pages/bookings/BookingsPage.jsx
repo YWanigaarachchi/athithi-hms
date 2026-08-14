@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, CalendarDays, Search, CheckCircle, Clock } from 'lucide-react';
-import { getBookings, checkIn, checkOut, confirmBooking } from '../../api/bookingsApi';
+import { Plus, CalendarDays, Search, CheckCircle, Clock, Eye } from 'lucide-react';
+import { getBookings, checkIn, checkOut, confirmBooking, cancelBooking } from '../../api/bookingsApi';
 import { fmtDate, fmtLKR, bookingStatusBadge } from '../../utils/formatters';
 import Badge from '../../components/ui/Badge';
 import { LoadingState, EmptyState } from '../../components/ui/Spinner';
 import Pagination from '../../components/ui/Pagination';
 import SeasonBadge from '../../components/SeasonBadge';
+import BookingFormModal from './BookingFormModal';
+import BookingDetailsModal from './BookingDetailsModal';
 import toast from 'react-hot-toast';
 
 const STATUSES = ['pending', 'confirmed', 'checked-in', 'checked-out', 'cancelled', 'no-show'];
@@ -19,12 +21,16 @@ export default function BookingsPage() {
   const [search, setSearch]   = useState('');
   const [status, setStatus]   = useState('');
 
+  // Modals state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
   const fetchBookings = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getBookings({ page, limit: 10, status, search });
-      setBookings(res.data.data);
-      setTotal(res.data.pagination.total);
+      setBookings(res.data.data || []);
+      setTotal(res.data.pagination?.total || res.data.total || 0);
     } catch {
       toast.error('Failed to load bookings');
     } finally {
@@ -37,8 +43,19 @@ export default function BookingsPage() {
   const handleAction = async (id, actionStr, apiFn) => {
     if (!window.confirm(`Are you sure you want to ${actionStr} this booking?`)) return;
     try {
-      await apiFn(id);
-      toast.success(`Booking successfully ${actionStr}ed.`);
+      if (apiFn) {
+        await apiFn(id);
+      } else if (actionStr === 'confirm') {
+        await confirmBooking(id);
+      } else if (actionStr === 'check-in') {
+        await checkIn(id);
+      } else if (actionStr === 'check-out') {
+        await checkOut(id);
+      } else if (actionStr === 'cancel') {
+        await cancelBooking(id, { reason: 'Staff cancelled via console' });
+      }
+      toast.success(`Booking successfully updated.`);
+      setSelectedBooking(null);
       fetchBookings();
     } catch (err) {
       toast.error(err.response?.data?.message || `Failed to ${actionStr}`);
@@ -53,7 +70,7 @@ export default function BookingsPage() {
           <p>Manage guest reservations, check-ins, and check-outs</p>
         </div>
         <div className="page-header-actions">
-          <button className="btn btn-primary">
+          <button className="btn btn-primary" onClick={() => setIsFormOpen(true)}>
             <Plus size={16} /> New Booking
           </button>
         </div>
@@ -153,7 +170,9 @@ export default function BookingsPage() {
                         {b.status === 'checked-in' && (
                           <button className="btn btn-sm btn-danger" onClick={() => handleAction(b._id, 'check out', checkOut)}>Check Out</button>
                         )}
-                        <button className="btn btn-sm btn-ghost">View</button>
+                        <button className="btn btn-sm btn-ghost" onClick={() => setSelectedBooking(b)}>
+                          <Eye size={13} style={{ display: 'inline', marginRight: 4 }} /> View
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -171,6 +190,21 @@ export default function BookingsPage() {
           onPage={setPage}
         />
       </div>
+
+      {/* New Booking Form Modal */}
+      <BookingFormModal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSaved={fetchBookings}
+      />
+
+      {/* Booking Details Modal */}
+      <BookingDetailsModal
+        isOpen={!!selectedBooking}
+        booking={selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        onAction={handleAction}
+      />
     </div>
   );
 }

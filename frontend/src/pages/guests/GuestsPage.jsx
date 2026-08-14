@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Users, Search, Mail, Phone, FileText } from 'lucide-react';
+import { Plus, Users, Search, Mail, Phone, FileText, User } from 'lucide-react';
 import { getGuests, deleteGuest } from '../../api/guestsApi';
 import { fmtDate, nicTypeLabel } from '../../utils/formatters';
 import Badge from '../../components/ui/Badge';
 import { LoadingState, EmptyState } from '../../components/ui/Spinner';
 import Pagination from '../../components/ui/Pagination';
+import GuestFormModal from './GuestFormModal';
+import GuestDetailsModal from './GuestDetailsModal';
 import toast from 'react-hot-toast';
 
 export default function GuestsPage() {
@@ -14,12 +16,17 @@ export default function GuestsPage() {
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
 
+  // Modals state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingGuest, setEditingGuest] = useState(null);
+  const [viewingGuest, setViewingGuest] = useState(null);
+
   const fetchGuests = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getGuests({ page, limit: 12, search });
-      setGuests(res.data.data);
-      setTotal(res.data.pagination.total);
+      setGuests(res.data.data || []);
+      setTotal(res.data.pagination?.total || res.data.total || 0);
     } catch {
       toast.error('Failed to load guest profiles');
     } finally {
@@ -40,6 +47,16 @@ export default function GuestsPage() {
     }
   };
 
+  const handleOpenCreate = () => {
+    setEditingGuest(null);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenEdit = (g) => {
+    setEditingGuest(g);
+    setIsFormOpen(true);
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -48,7 +65,7 @@ export default function GuestsPage() {
           <p>Manage guest profiles, preferences, and identity verification</p>
         </div>
         <div className="page-header-actions">
-          <button className="btn btn-primary">
+          <button className="btn btn-primary" onClick={handleOpenCreate}>
             <Plus size={16} /> Add Guest
           </button>
         </div>
@@ -122,7 +139,8 @@ export default function GuestsPage() {
               )}
 
               <div className="flex gap-2 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-                <button className="btn btn-sm btn-secondary flex-1">Profile</button>
+                <button className="btn btn-sm btn-secondary flex-1" onClick={() => setViewingGuest(g)}>Profile</button>
+                <button className="btn btn-sm btn-ghost" onClick={() => handleOpenEdit(g)}>Edit</button>
                 <button className="btn btn-sm btn-danger" onClick={() => handleDelete(g._id, `${g.firstName} ${g.lastName}`)}>Delete</button>
               </div>
             </div>
@@ -141,6 +159,22 @@ export default function GuestsPage() {
           />
         </div>
       )}
+
+      {/* Guest Form Modal (Add / Edit) */}
+      <GuestFormModal
+        isOpen={isFormOpen}
+        guest={editingGuest}
+        onClose={() => setIsFormOpen(false)}
+        onSaved={fetchGuests}
+      />
+
+      {/* Guest Details Modal */}
+      <GuestDetailsModal
+        isOpen={!!viewingGuest}
+        guest={viewingGuest}
+        onClose={() => setViewingGuest(null)}
+        onEdit={handleOpenEdit}
+      />
     </div>
   );
 }
