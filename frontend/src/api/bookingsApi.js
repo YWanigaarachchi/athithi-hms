@@ -1,11 +1,58 @@
-import api from './axios';
+import { bookingsStore } from '../mock/demoStore';
 
-export const getBookings      = (params) => api.get('/bookings', { params });
-export const getTodayBookings = ()        => api.get('/bookings/today');
-export const getBookingById   = (id)      => api.get(`/bookings/${id}`);
-export const createBooking    = (data)    => api.post('/bookings', data);
-export const updateBooking    = (id, d)   => api.put(`/bookings/${id}`, d);
-export const confirmBooking   = (id)      => api.patch(`/bookings/${id}/confirm`);
-export const checkIn          = (id)      => api.patch(`/bookings/${id}/checkin`);
-export const checkOut         = (id)      => api.patch(`/bookings/${id}/checkout`);
-export const cancelBooking    = (id, d)   => api.patch(`/bookings/${id}/cancel`, d);
+export const getBookings = async (params = {}) => {
+  const result = bookingsStore.getAll(params);
+  return {
+    data: {
+      success: true,
+      data: result.data,
+      count: result.data.length,
+      total: result.total,
+      pagination: { total: result.total, page: 1, pages: 1 },
+    },
+  };
+};
+
+export const getTodayBookings = async () => {
+  const data = bookingsStore.getToday();
+  return {
+    data: {
+      success: true,
+      data,
+    },
+  };
+};
+
+export const getBookingById = async (id) => {
+  const booking = bookingsStore.getById(id);
+  return { data: { success: true, data: booking } };
+};
+
+export const createBooking = async (data) => {
+  const booking = bookingsStore.create(data);
+  return { data: { success: true, data: booking } };
+};
+
+export const updateBooking = async (id, data) => {
+  return { data: { success: true, data } };
+};
+
+export const confirmBooking = async (id) => {
+  const updated = bookingsStore.updateStatus(id, 'confirmed');
+  return { data: { success: true, data: updated } };
+};
+
+export const checkIn = async (id) => {
+  const updated = bookingsStore.updateStatus(id, 'checked-in');
+  return { data: { success: true, data: updated } };
+};
+
+export const checkOut = async (id) => {
+  const updated = bookingsStore.updateStatus(id, 'checked-out');
+  return { data: { success: true, data: updated } };
+};
+
+export const cancelBooking = async (id) => {
+  const updated = bookingsStore.updateStatus(id, 'cancelled');
+  return { data: { success: true, data: updated } };
+};
