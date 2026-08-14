@@ -1,9 +1,42 @@
-import api from './axios';
+import { billsStore } from '../mock/demoStore';
 
-export const getBills          = (params) => api.get('/billing', { params });
-export const getBillForBooking = (bId)    => api.get(`/billing/booking/${bId}`);
-export const generateBill      = (bId)    => api.post(`/billing/generate/${bId}`);
-export const addLineItem       = (id, d)  => api.post(`/billing/${id}/items`, d);
-export const removeLineItem    = (id, i)  => api.delete(`/billing/${id}/items/${i}`);
-export const markPaid          = (id, d)  => api.patch(`/billing/${id}/pay`, d);
-export const getInvoice        = (id)     => api.get(`/billing/${id}/invoice`);
+export const getBills = async (params = {}) => {
+  const result = billsStore.getAll(params);
+  return {
+    data: {
+      success: true,
+      data: result.data,
+      count: result.data.length,
+      total: result.total,
+      pagination: { total: result.total, page: 1, pages: 1 },
+    },
+  };
+};
+
+export const getBillForBooking = async (bId) => {
+  const bill = billsStore.getById(bId);
+  return { data: { success: true, data: bill } };
+};
+
+export const generateBill = async (bId) => {
+  return { data: { success: true, data: {} } };
+};
+
+export const addLineItem = async (id, data) => {
+  const updated = billsStore.addItem(id, data);
+  return { data: { success: true, data: updated } };
+};
+
+export const removeLineItem = async (id, index) => {
+  return { data: { success: true } };
+};
+
+export const markPaid = async (id, data) => {
+  const updated = billsStore.markPaid(id, data);
+  return { data: { success: true, data: updated } };
+};
+
+export const getInvoice = async (id) => {
+  const bill = billsStore.getById(id);
+  return { data: { success: true, data: bill } };
+};
