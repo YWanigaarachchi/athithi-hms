@@ -1,8 +1,38 @@
-import api from './axios';
+import { roomsStore } from '../mock/demoStore';
 
-export const getRooms         = (params) => api.get('/rooms', { params });
-export const getRoomById      = (id)     => api.get(`/rooms/${id}`);
-export const createRoom       = (data)   => api.post('/rooms', data);
-export const updateRoom       = (id, d)  => api.put(`/rooms/${id}`, d);
-export const deleteRoom       = (id)     => api.delete(`/rooms/${id}`);
-export const checkRoomAvail   = (id, p)  => api.get(`/rooms/${id}/availability`, { params: p });
+export const getRooms = async (params = {}) => {
+  const result = roomsStore.getAll(params);
+  return {
+    data: {
+      success: true,
+      data: result.data,
+      count: result.data.length,
+      total: result.total,
+      pagination: { total: result.total, page: 1, pages: 1 },
+    },
+  };
+};
+
+export const getRoomById = async (id) => {
+  const room = roomsStore.getById(id);
+  return { data: { success: true, data: room } };
+};
+
+export const createRoom = async (data) => {
+  const room = roomsStore.create(data);
+  return { data: { success: true, data: room } };
+};
+
+export const updateRoom = async (id, data) => {
+  const room = roomsStore.update(id, data);
+  return { data: { success: true, data: room } };
+};
+
+export const deleteRoom = async (id) => {
+  roomsStore.delete(id);
+  return { data: { success: true, message: 'Room deleted' } };
+};
+
+export const checkRoomAvail = async () => {
+  return { data: { success: true, available: true } };
+};
