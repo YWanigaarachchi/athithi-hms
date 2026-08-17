@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { TAX_RATES, SL_SEASONS } from '../constants/sriLanka';
 import { getSeasonForDate, calcRoomPrice, calcTaxes } from '../utils/hotelUtils';
+import toast from 'react-hot-toast';
 
 const HotelContext = createContext();
 
-const INITIAL_ROOMS = [
+export const INITIAL_ROOMS = [
   {
     id: 'R101',
     number: '101',
@@ -13,8 +14,8 @@ const INITIAL_ROOMS = [
     capacity: 2,
     basePrice: 38000,
     status: 'occupied',
-    amenities: ['AC', 'King Bed', 'Balcony', 'Mini Bar', 'Ocean View', 'Free Wi-Fi'],
-    floor: '1st Floor',
+    amenities: ['AC', 'King Bed', 'Balcony', 'Mini Bar', 'Ocean View', 'Free Wi-Fi', 'Bathtub'],
+    floor: '1st Floor - Ocean Wing',
     currentGuest: 'Kasun Perera',
     checkOutDate: '2026-08-19',
   },
@@ -27,18 +28,18 @@ const INITIAL_ROOMS = [
     basePrice: 28000,
     status: 'available',
     amenities: ['AC', 'Queen Bed', 'Sea View Deck', 'Rain Shower', 'Free Wi-Fi'],
-    floor: 'Ground Floor',
+    floor: 'Ground Floor - Beachfront',
   },
   {
     id: 'R103',
     number: '103',
-    name: 'Ella Mountain Eco Villa',
+    name: 'Ella Mountain Eco Cabana',
     type: 'eco-cabana',
     capacity: 4,
     basePrice: 45000,
     status: 'occupied',
-    amenities: ['Natural Ventilation', 'Private Plunge Pool', 'Mountain View', 'Tea Station'],
-    floor: 'Garden Wing',
+    amenities: ['Natural Ventilation', 'Private Plunge Pool', 'Mountain View', 'Tea Station', 'Balcony'],
+    floor: 'Garden Wing - Top View',
     currentGuest: 'Liam & Emma Watson',
     checkOutDate: '2026-08-20',
   },
@@ -50,8 +51,8 @@ const INITIAL_ROOMS = [
     capacity: 3,
     basePrice: 24000,
     status: 'available',
-    amenities: ['AC', 'Dutch Antique Furnishing', 'Garden Patio', 'Bathtub'],
-    floor: '1st Floor',
+    amenities: ['AC', 'Dutch Antique Furnishing', 'Garden Patio', 'Bathtub', 'Free Wi-Fi'],
+    floor: '1st Floor - Heritage Court',
   },
   {
     id: 'R105',
@@ -61,8 +62,8 @@ const INITIAL_ROOMS = [
     capacity: 6,
     basePrice: 75000,
     status: 'reserved',
-    amenities: ['Private Chef', 'Infinity Pool', 'Butler Service', 'Beach Access'],
-    floor: 'Beachfront',
+    amenities: ['Private Chef', 'Infinity Pool', 'Butler Service', 'Beach Access', 'Jacuzzi', '3 Bedrooms'],
+    floor: 'Beachfront - Villa 1',
     currentGuest: 'David Miller',
     checkInDate: '2026-08-19',
   },
@@ -74,8 +75,8 @@ const INITIAL_ROOMS = [
     capacity: 2,
     basePrice: 16000,
     status: 'maintenance',
-    amenities: ['AC', 'Double Bed', 'Work Desk', 'En-suite Bathroom'],
-    floor: '2nd Floor',
+    amenities: ['AC', 'Double Bed', 'Work Desk', 'En-suite Bathroom', 'TV'],
+    floor: '2nd Floor - Hill View',
   },
   {
     id: 'R107',
@@ -85,8 +86,8 @@ const INITIAL_ROOMS = [
     capacity: 2,
     basePrice: 18000,
     status: 'available',
-    amenities: ['AC', 'Twin Beds', 'Garden View', 'Tea Station'],
-    floor: 'Ground Floor',
+    amenities: ['AC', 'Twin Beds', 'Garden View', 'Tea Station', 'Free Wi-Fi'],
+    floor: 'Ground Floor - Jungle Path',
   },
   {
     id: 'R108',
@@ -96,12 +97,36 @@ const INITIAL_ROOMS = [
     capacity: 3,
     basePrice: 26000,
     status: 'available',
-    amenities: ['AC', 'Balcony', 'Beach View', 'Mini Fridge'],
-    floor: '2nd Floor',
+    amenities: ['AC', 'Balcony', 'Beach View', 'Mini Fridge', 'King Bed'],
+    floor: '2nd Floor - Ocean Wing',
+  },
+  {
+    id: 'R109',
+    number: '109',
+    name: 'Nuwara Eliya Tea Garden Suite',
+    type: 'suite',
+    capacity: 4,
+    basePrice: 42000,
+    status: 'occupied',
+    amenities: ['Fireplace', 'Heated Bedding', 'Panoramic Tea Plantation View', 'Living Room', 'Bathtub'],
+    floor: 'Top Floor - Highland Wing',
+    currentGuest: 'Ayesha Jayawardena',
+    checkOutDate: '2026-08-21',
+  },
+  {
+    id: 'R110',
+    number: '110',
+    name: 'Arugam Bay Surf Cabana',
+    type: 'ocean-view',
+    capacity: 2,
+    basePrice: 22000,
+    status: 'available',
+    amenities: ['Ceiling Fan', 'Direct Sand Access', 'Hammock Deck', 'Outdoor Shower'],
+    floor: 'Beachfront - Surf Point',
   }
 ];
 
-const INITIAL_GUESTS = [
+export const INITIAL_GUESTS = [
   {
     id: 'G001',
     name: 'Kasun Perera',
@@ -112,8 +137,8 @@ const INITIAL_GUESTS = [
     nationality: 'Sri Lankan',
     spicePreference: 'sri-lankan-hot',
     breakfastPreference: 'traditional-sl',
-    notes: 'Likes extra coconut sambol and milk tea in the morning.',
-    totalVisits: 3,
+    notes: 'Frequent VIP guest. Prefers extra spicy Pol Sambol and hot Ginger Tea in the morning.',
+    totalVisits: 5,
   },
   {
     id: 'G002',
@@ -125,8 +150,8 @@ const INITIAL_GUESTS = [
     nationality: 'British',
     spicePreference: 'mild',
     breakfastPreference: 'english',
-    notes: 'Honeymoon couple. Welcome drinks requested.',
-    totalVisits: 1,
+    notes: 'Honeymoon couple. Requested king coconut welcome drinks and quiet sunset terrace.',
+    totalVisits: 2,
   },
   {
     id: 'G003',
@@ -138,8 +163,8 @@ const INITIAL_GUESTS = [
     nationality: 'Australian',
     spicePreference: 'medium',
     breakfastPreference: 'continental',
-    notes: 'Arriving late evening around 8 PM.',
-    totalVisits: 2,
+    notes: 'Family vacation (4 guests). Inquiring about Whale Watching in Mirissa.',
+    totalVisits: 3,
   },
   {
     id: 'G004',
@@ -151,7 +176,7 @@ const INITIAL_GUESTS = [
     nationality: 'Sri Lankan',
     spicePreference: 'hot',
     breakfastPreference: 'traditional-sl',
-    notes: 'Prefers quiet top-floor room.',
+    notes: 'Loves Egg Hoppers (Biththara Appa) and Kithul Pani with Buffalo Curd.',
     totalVisits: 4,
   },
   {
@@ -164,12 +189,38 @@ const INITIAL_GUESTS = [
     nationality: 'German',
     spicePreference: 'none',
     breakfastPreference: 'vegan',
-    notes: 'Gluten sensitive. Prefers soy milk.',
+    notes: 'Gluten sensitive. Prefers soy milk and fresh tropical fruit platter (Papaya & Pineapple).',
     totalVisits: 1,
+  },
+  {
+    id: 'G006',
+    name: 'Ayesha Jayawardena',
+    phone: '+94 76 555 7890',
+    email: 'ayesha.j@colombo.lk',
+    idType: 'nic-new',
+    idNumber: '199581400234',
+    nationality: 'Sri Lankan',
+    spicePreference: 'sri-lankan-hot',
+    breakfastPreference: 'traditional-sl',
+    notes: 'Corporate retreat organizer. High priority booking.',
+    totalVisits: 6,
+  },
+  {
+    id: 'G007',
+    name: 'Yuki Tanaka',
+    phone: '+81 90 1234 5678',
+    email: 'yuki.tanaka@tokyo.jp',
+    idType: 'passport',
+    idNumber: 'TZ7788990',
+    nationality: 'Japanese',
+    spicePreference: 'mild',
+    breakfastPreference: 'vegetarian',
+    notes: 'Interested in Ceylon Cinnamon and Ayurvedic herbal spa treatments.',
+    totalVisits: 2,
   }
 ];
 
-const INITIAL_BOOKINGS = [
+export const INITIAL_BOOKINGS = [
   {
     id: 'BK-2026-001',
     guestId: 'G001',
@@ -200,7 +251,7 @@ const INITIAL_BOOKINGS = [
     guestPhone: '+44 7911 123456',
     roomId: 'R103',
     roomNumber: '103',
-    roomName: 'Ella Mountain Eco Villa',
+    roomName: 'Ella Mountain Eco Cabana',
     checkIn: '2026-08-17',
     checkOut: '2026-08-20',
     nights: 3,
@@ -261,10 +312,56 @@ const INITIAL_BOOKINGS = [
     spicePreference: 'hot',
     breakfastPreference: 'traditional-sl',
     createdAt: '2026-08-12',
+  },
+  {
+    id: 'BK-2026-005',
+    guestId: 'G006',
+    guestName: 'Ayesha Jayawardena',
+    guestPhone: '+94 76 555 7890',
+    roomId: 'R109',
+    roomNumber: '109',
+    roomName: 'Nuwara Eliya Tea Garden Suite',
+    checkIn: '2026-08-18',
+    checkOut: '2026-08-21',
+    nights: 3,
+    guestsCount: 3,
+    baseRate: 42000,
+    multiplier: 1.0,
+    subtotal: 126000,
+    taxTotal: 38430,
+    grandTotal: 164430,
+    status: 'checked-in',
+    paymentStatus: 'paid',
+    spicePreference: 'sri-lankan-hot',
+    breakfastPreference: 'traditional-sl',
+    createdAt: '2026-08-17',
+  },
+  {
+    id: 'BK-2026-006',
+    guestId: 'G007',
+    guestName: 'Yuki Tanaka',
+    guestPhone: '+81 90 1234 5678',
+    roomId: 'R104',
+    roomNumber: '104',
+    roomName: 'Galle Heritage Deluxe',
+    checkIn: '2026-08-20',
+    checkOut: '2026-08-24',
+    nights: 4,
+    guestsCount: 2,
+    baseRate: 24000,
+    multiplier: 1.0,
+    subtotal: 96000,
+    taxTotal: 29280,
+    grandTotal: 125280,
+    status: 'confirmed',
+    paymentStatus: 'pending',
+    spicePreference: 'mild',
+    breakfastPreference: 'vegetarian',
+    createdAt: '2026-08-18',
   }
 ];
 
-const INITIAL_BILLS = [
+export const INITIAL_BILLS = [
   {
     id: 'INV-2026-001',
     bookingId: 'BK-2026-001',
@@ -273,14 +370,15 @@ const INITIAL_BILLS = [
     date: '2026-08-16',
     items: [
       { description: 'Sigiriya Deluxe Suite (3 Nights)', amount: 114000 },
-      { description: 'Traditional Sri Lankan Buffet (Breakfast)', amount: 6500 },
-      { description: 'King Coconut & Fresh Juice Bar', amount: 2200 },
+      { description: 'Traditional Sri Lankan Kiribath & Hoppers Buffet', amount: 6500 },
+      { description: 'Fresh King Coconut Bar & Tropical Juices', amount: 2200 },
+      { description: 'Ayurvedic Herbal Full Body Massage', amount: 12000 },
     ],
-    subtotal: 122700,
-    serviceCharge: 12270,
-    vat: 24294.6,
-    sscl: 3067.5,
-    grandTotal: 162332.1,
+    subtotal: 134700,
+    serviceCharge: 13470,
+    vat: 26670.6,
+    sscl: 3367.5,
+    grandTotal: 178208.1,
     status: 'paid',
     paymentMethod: 'Credit Card (Visa)',
   },
@@ -291,17 +389,56 @@ const INITIAL_BILLS = [
     roomNumber: '103',
     date: '2026-08-17',
     items: [
-      { description: 'Ella Mountain Eco Villa (3 Nights)', amount: 135000 },
-      { description: 'Ceylon Tea Tasting Experience', amount: 8000 },
+      { description: 'Ella Mountain Eco Cabana (3 Nights)', amount: 135000 },
+      { description: 'Ceylon Artisan Tea Tasting Experience', amount: 8000 },
       { description: 'Airport Luxury Transfer (Bandaranaike Intl)', amount: 18000 },
+      { description: 'Galle Fort Heritage Guided Tour', amount: 15000 },
     ],
-    subtotal: 161000,
-    serviceCharge: 16100,
-    vat: 31878,
-    sscl: 4025,
-    grandTotal: 213003,
+    subtotal: 176000,
+    serviceCharge: 17600,
+    vat: 34848,
+    sscl: 4400,
+    grandTotal: 232848,
     status: 'pending',
     paymentMethod: 'Unpaid',
+  },
+  {
+    id: 'INV-2026-003',
+    bookingId: 'BK-2026-004',
+    guestName: 'Dilini Samarasinghe',
+    roomNumber: '102',
+    date: '2026-08-14',
+    items: [
+      { description: 'Mirissa Ocean Cabana (3 Nights)', amount: 84000 },
+      { description: 'Southern Ocean Seafood BBQ Feast (Jumbo Prawns & Lobster)', amount: 18500 },
+      { description: 'Kithul Treacle Curd & Dessert Bar', amount: 3500 },
+    ],
+    subtotal: 106000,
+    serviceCharge: 10600,
+    vat: 20988,
+    sscl: 2650,
+    grandTotal: 140238,
+    status: 'paid',
+    paymentMethod: 'Cash (LKR)',
+  },
+  {
+    id: 'INV-2026-004',
+    bookingId: 'BK-2026-005',
+    guestName: 'Ayesha Jayawardena',
+    roomNumber: '109',
+    date: '2026-08-18',
+    items: [
+      { description: 'Nuwara Eliya Tea Garden Suite (3 Nights)', amount: 126000 },
+      { description: 'Highland Fireplace Logs & Hot Chocolate Bar', amount: 4500 },
+      { description: 'Private Dinner with Executive Chef', amount: 22000 },
+    ],
+    subtotal: 152500,
+    serviceCharge: 15250,
+    vat: 30195,
+    sscl: 3812.5,
+    grandTotal: 201757.5,
+    status: 'paid',
+    paymentMethod: 'Bank Transfer (Commercial Bank LK)',
   }
 ];
 
@@ -366,6 +503,21 @@ export function HotelProvider({ children }) {
     localStorage.setItem('athithi_tax_rates', JSON.stringify(taxRates));
   }, [taxRates]);
 
+  // Reset & Populate Demo Data
+  const resetDemoData = () => {
+    setRooms(INITIAL_ROOMS);
+    setGuests(INITIAL_GUESTS);
+    setBookings(INITIAL_BOOKINGS);
+    setBills(INITIAL_BILLS);
+    setTaxRates(TAX_RATES);
+    localStorage.setItem('athithi_rooms', JSON.stringify(INITIAL_ROOMS));
+    localStorage.setItem('athithi_guests', JSON.stringify(INITIAL_GUESTS));
+    localStorage.setItem('athithi_bookings', JSON.stringify(INITIAL_BOOKINGS));
+    localStorage.setItem('athithi_bills', JSON.stringify(INITIAL_BILLS));
+    localStorage.setItem('athithi_tax_rates', JSON.stringify(TAX_RATES));
+    toast.success('✨ Fresh Demo Dataset Loaded Successfully!');
+  };
+
   // Actions
   const addBooking = (bookingData) => {
     const newBooking = {
@@ -378,7 +530,6 @@ export function HotelProvider({ children }) {
 
     setBookings([newBooking, ...bookings]);
 
-    // Update Room status to reserved
     setRooms((prev) =>
       prev.map((r) =>
         r.id === bookingData.roomId
@@ -387,7 +538,6 @@ export function HotelProvider({ children }) {
       )
     );
 
-    // Auto-generate initial bill
     const billSubtotal = newBooking.subtotal;
     const taxes = calcTaxes(billSubtotal, taxRates);
     const newBill = {
@@ -419,7 +569,6 @@ export function HotelProvider({ children }) {
     setBookings((prev) =>
       prev.map((b) => {
         if (b.id === bookingId) {
-          // Sync room status
           if (newStatus === 'checked-in') {
             setRooms((roomsPrev) =>
               roomsPrev.map((r) =>
@@ -478,7 +627,6 @@ export function HotelProvider({ children }) {
     setBills((prev) =>
       prev.map((bill) => {
         if (bill.id === billId) {
-          // Also update booking paymentStatus
           setBookings((bPrev) =>
             bPrev.map((b) => (b.id === bill.bookingId ? { ...b, paymentStatus: 'paid' } : b))
           );
@@ -526,6 +674,7 @@ export function HotelProvider({ children }) {
         setUsdRate,
         hotelInfo,
         setHotelInfo,
+        resetDemoData,
         addBooking,
         updateBookingStatus,
         addRoom,

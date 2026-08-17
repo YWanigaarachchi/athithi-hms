@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useHotel } from '../context/HotelContext';
 import { SL_SEASONS } from '../constants/sriLanka';
-import { Settings as SettingsIcon, Save, DollarSign, Percent, Hotel, Calendar, CheckCircle2 } from 'lucide-react';
+import { Settings as SettingsIcon, Save, DollarSign, Percent, Hotel, Calendar, Sparkles, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Settings() {
-  const { hotelInfo, setHotelInfo, taxRates, setTaxRates, usdRate, setUsdRate } = useHotel();
+  const { hotelInfo, setHotelInfo, taxRates, setTaxRates, usdRate, setUsdRate, resetDemoData } = useHotel();
 
   const [formHotel, setFormHotel] = useState({ ...hotelInfo });
   const [vat, setVat] = useState((taxRates.VAT * 100).toString());
@@ -35,10 +35,16 @@ export default function Settings() {
           <h1 className="page-title">System Settings & Configuration</h1>
           <p className="page-desc">Hotel profile, Sri Lankan tax rates, currency exchange, and seasonal calendars</p>
         </div>
-        <button className="btn btn-primary" onClick={handleSaveAll}>
-          <Save size={16} />
-          <span>Save Changes</span>
-        </button>
+        <div className="flex items-center gap-12">
+          <button type="button" className="btn btn-secondary" onClick={resetDemoData}>
+            <Sparkles size={16} className="text-brand" />
+            <span>Reset Demo Data</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleSaveAll}>
+            <Save size={16} />
+            <span>Save Changes</span>
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSaveAll} className="flex-col gap-24">

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useHotel } from '../../context/HotelContext';
 import { getSeasonForDate } from '../../utils/hotelUtils';
-import { Calendar, DollarSign, Bell, Plus, Sparkles } from 'lucide-react';
+import { Calendar, DollarSign, Bell, Plus, Sparkles, RefreshCw } from 'lucide-react';
 
 export default function Topbar({ onNewBookingClick }) {
-  const { currency, setCurrency, usdRate } = useHotel();
+  const { currency, setCurrency, usdRate, resetDemoData } = useHotel();
   const today = new Date();
   const currentSeason = getSeasonForDate(today);
 
@@ -17,7 +17,7 @@ export default function Topbar({ onNewBookingClick }) {
 
   return (
     <header className="topbar">
-      <div className="flex items-center gap-16">
+      <div className="flex items-center gap-16 flex-wrap">
         <div className="flex items-center gap-8 text-secondary text-sm">
           <Calendar size={16} className="text-brand" />
           <span>{formattedDate}</span>
@@ -37,6 +37,18 @@ export default function Topbar({ onNewBookingClick }) {
       </div>
 
       <div className="topbar-actions">
+        {/* Reset / Reload Demo Data Button */}
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          style={{ fontSize: '12px', padding: '5px 10px', gap: '6px' }}
+          onClick={resetDemoData}
+          title="Reset and populate rich Sri Lankan resort demo data"
+        >
+          <Sparkles size={14} className="text-brand" />
+          <span>Demo Data</span>
+        </button>
+
         {/* Currency Switcher */}
         <div className="tabs" style={{ padding: '2px' }}>
           <button
