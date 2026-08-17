@@ -1,23 +1,28 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout/Layout';
-import DashboardPage from './pages/dashboard/DashboardPage';
-import RoomsPage from './pages/rooms/RoomsPage';
-import BookingsPage from './pages/bookings/BookingsPage';
-import GuestsPage from './pages/guests/GuestsPage';
-import BillingPage from './pages/billing/BillingPage';
+import { HotelProvider } from './context/HotelContext';
+import Layout from './components/layout/Layout';
+import Dashboard from './pages/Dashboard';
+import Rooms from './pages/Rooms';
+import Bookings from './pages/Bookings';
+import Guests from './pages/Guests';
+import Billing from './pages/Billing';
+import Settings from './pages/Settings';
 
 export default function App() {
   return (
-    <Layout>
+    <HotelProvider>
       <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/rooms" element={<RoomsPage />} />
-        <Route path="/bookings" element={<BookingsPage />} />
-        <Route path="/guests" element={<GuestsPage />} />
-        <Route path="/billing" element={<BillingPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="rooms" element={<Rooms />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="guests" element={<Guests />} />
+          <Route path="billing" element={<Billing />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
       </Routes>
-    </Layout>
+    </HotelProvider>
   );
 }
